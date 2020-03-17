@@ -1,56 +1,17 @@
 # Work with Python 3.6
 import discord
-import uuid
+import uuid as u
 import time
 import requests
+from discord.ext import commands
+
+bot = commands.Bot(command_prefix='!mike ', help_command=None)
 
 TOKEN = open("token.secret", "r").read()
 
-client = discord.Client()
 
-
-@client.event
-async def on_message(message):
-    # we do not want the bot to reply to itself
-    if message.author == client.user:
-        return
-
-    if message.content.startswith("!mike"):
-        messagecontent = message.content.lower().split(" ")
-        if len(messagecontent) == 1:
-            await display_command_reference(message)
-        else:
-            if messagecontent[1] == "help":
-                await display_command_reference(message)
-            elif messagecontent[1] == "uuid":
-                await message.channel.send(("`" + str(uuid.uuid4()) + "`").format(message))
-            elif messagecontent[1] == "invite":
-                await message.channel.send("https://tinyurl.com/sn5jnj9".format(message))
-            elif messagecontent[1] == "epoch":
-                await message.channel.send(("`" + str(int(time.time())) + "`").format(message))
-            elif messagecontent[1] == "dad":
-                URL = "https://icanhazdadjoke.com/"
-                async with message.channel.typing():
-                    response = requests.get(URL, headers={"Accept": "application/json"})
-                    r = response.json()
-                    await san_send(message, r["joke"])
-            elif messagecontent[1] == "fortune":
-                URL = "http://yerkee.com/api/fortune"
-                async with message.channel.typing():
-                    response = requests.get(URL)
-                    r = response.json()
-                    await san_send(message, r["fortune"])
-            else:
-                await message.channel.send("Command not found! Use `!mike help` for a full command reference.".format(message))
-
-
-@client.event
-async def on_ready():
-    print("Logged in as " + client.user.name + " with ID#" + str(client.user.id))
-    print('-----------------------------------------------')
-
-
-async def display_command_reference(message):
+@bot.command()
+async def help(ctx):
     e = discord.Embed(title="MikeBot Help", description="Full MikeBot command reference", type="rich", color=0x00ff00)
     e.set_thumbnail(url="https://i.imgur.com/7uCNBtq.png")
     first = True
@@ -70,7 +31,65 @@ async def display_command_reference(message):
                 value += "- `!mike " + command + "` " + action
         e.add_field(name=name, value=value, inline=False)
     e.set_footer(text="Created by mehmenmike#4389")
-    await message.channel.send(embed=e)
+    await ctx.channel.send(embed=e)
+
+
+@bot.command()
+async def uuid(ctx):
+    await ctx.send("`" + str(u.uuid4()) + "`")
+
+
+@bot.command()
+async def invite(ctx):
+    await ctx.send("https://tinyurl.com/sn5jnj9")
+    # https://discordapp.com/oauth2/authorize?client_id=688534221324943360&permissions=67584&scope=bot
+
+
+@bot.command()
+async def epoch(ctx):
+    await ctx.send("`" + str(int(time.time())) + "`")
+
+
+@bot.command()
+async def dad(ctx):
+    URL = "https://icanhazdadjoke.com/"
+    async with ctx.message.channel.typing():
+        response = requests.get(URL, headers={"Accept": "application/json"})
+        r = response.json()
+        await san_send(ctx.message, r["joke"])
+
+
+@bot.command()
+async def fortune(ctx):
+    URL = "http://yerkee.com/api/fortune"
+    async with ctx.message.channel.typing():
+        response = requests.get(URL)
+        r = response.json()
+        await san_send(ctx.message, r["fortune"])
+
+
+@bot.event
+async def on_message(message):
+    # we do not want the bot to reply to itself
+    if message.author == bot.user:
+        return
+
+    if message.content == "!mike":
+        await help(message)
+    else:
+        await bot.process_commands(message)
+
+
+@bot.event
+async def on_ready():
+    print("Logged in as " + bot.user.name + " with ID#" + str(bot.user.id))
+    print('-----------------------------------------------')
+
+
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.CommandNotFound):
+        await ctx.send("Command not found! Use `!mike help` for a full command reference.")
 
 async def san_send(message, text):
     text = text.replace("*", "\*")
@@ -79,6 +98,4 @@ async def san_send(message, text):
     text = text.replace(">", "\>")
     await message.channel.send(text.format(message))
 
-client.run(TOKEN)
-
-# https://discordapp.com/oauth2/authorize?client_id=688534221324943360&scope=bot&permissions=8
+bot.run(TOKEN)
