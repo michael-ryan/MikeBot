@@ -5,5 +5,5 @@ invite: Get my invite link
 #Fun
 dad: Get a dad joke
 fortune: Tell a fortune
-#Drinks (under construction)
-bluelagoon: Produce the recipe for a blue lagoon cocktail
+#Drinks
+cocktail <cocktail name>: Produce the recipe for any cocktail
