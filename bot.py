@@ -67,10 +67,10 @@ async def uuid(ctx):
     await ctx.send("`" + str(u.uuid4()) + "`")
 
 
-@bot.command()
-async def invite(ctx):
-    await ctx.send("https://tinyurl.com/sn5jnj9")
-    # https://discordapp.com/oauth2/authorize?client_id=688534221324943360&permissions=67584&scope=bot
+#@bot.command()
+#async def invite(ctx):
+#    await ctx.send("https://tinyurl.com/sn5jnj9")
+#    # https://discordapp.com/oauth2/authorize?client_id=688534221324943360&permissions=67584&scope=bot
 
 
 @bot.command()
