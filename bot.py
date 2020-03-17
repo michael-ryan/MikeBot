@@ -1,4 +1,3 @@
-# Work with Python 3.6
 import discord
 import uuid as u
 import time
